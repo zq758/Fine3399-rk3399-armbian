@@ -3,10 +3,10 @@
 
 # Fine3399 / 说明
 
-Fine3399资料：https://gitee.com/opengisbook/Fine3399-Official
-莓底板/fine3399测试工程：https://gitee.com/xiayang0521/berrybaseboard-test
-早期固件：https://github.com/xiayang0521/rk3399-images/releases/tag/fine3399-images
-cm9vdA大佬的DTS：https://github.com/cm9vdA/build-linux/blob/master/boot/dts/rockchip/mainline/rk3399-fine3399.dts
+Fine3399资料：https://gitee.com/opengisbook/Fine3399-Official  
+莓底板/fine3399测试工程：https://gitee.com/xiayang0521/berrybaseboard-test  
+早期固件：https://github.com/xiayang0521/rk3399-images/releases/tag/fine3399-images  
+cm9vdA大佬的DTS：https://github.com/cm9vdA/build-linux/blob/master/boot/dts/rockchip/mainline/rk3399-fine3399.dts  
 
 
 
