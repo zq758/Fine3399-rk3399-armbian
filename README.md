@@ -1,6 +1,15 @@
 > [!NOTE]
 > 由于内核中 `/boot/vmlinuz-xxx` 文件从 `32MB` 调整到了 `64MB`，所以必须使用最新的 `armbian-update` 脚本来更新内核，否则会导致内核更新失败，造成 Armbian 系统无法正常启动。请查看文档[第 12.9 节](documents/README.cn.md#129-如何更新系统中的服务脚本)的脚本升级方法。
 
+# Fine3399 / 说明
+
+Fine3399资料：https://gitee.com/opengisbook/Fine3399-Official
+莓底板/fine3399测试工程：https://gitee.com/xiayang0521/berrybaseboard-test
+早期固件：https://github.com/xiayang0521/rk3399-images/releases/tag/fine3399-images
+cm9vdA大佬的DTS：https://github.com/cm9vdA/build-linux/blob/master/boot/dts/rockchip/mainline/rk3399-fine3399.dts
+
+
+
 # Armbian / 岸边
 
 查看英文说明 | [View English description](README.md)
