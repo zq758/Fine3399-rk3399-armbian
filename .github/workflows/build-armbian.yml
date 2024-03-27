@@ -175,9 +175,10 @@ on:
       kernel_repo:
         description: "Set the kernel repository."
         required: false
-        default: "ophub/kernel"
+        default: "QXY716/kernel"
         type: choice
         options:
+          - QXY716/kernel
           - ophub/kernel
       kernel_usage:
         description: "Set the tags of the stable kernel."
