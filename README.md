@@ -17,7 +17,6 @@ ophub大佬release出来的Fine3399镜像直接烧录，无法正常启动，原
 代码语句：sudo dd if="${bootloader_path}/uboot-bozz-rk3399.bin" of="${loop_new}" bs=1k skip=32 seek=32 conv=notrunc 2>/dev/null  
 
 Fine3399固件的DTS中已经开启了pcie2.0 x2通道，双网口，HDMI，led正常工作。  
-Fine3399-full固件是全功能版，开启了wifi蓝牙，及风扇pwm调速功能。  
 
 # Armbian / 岸边
 
