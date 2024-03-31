@@ -40,6 +40,8 @@ on:
           - eaidk-610
           - emb3531
           - fine3399
+          - fine3399-full
+          - fine3399_fine3399-full
           - firefly-rk3399
           - jp-tvbox
           - h28k
