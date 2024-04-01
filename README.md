@@ -1,6 +1,23 @@
 > [!NOTE]
 > Due to the adjustment of the `/boot/vmlinuz-xxx` file size from `32MB` to `64MB` in the kernel, it is necessary to use the latest `armbian-update` script to update the kernel. Failure to do so will result in the kernel update failing and the Armbian system being unable to boot normally. Please refer to [Section 12.9](documents/README.md#129-how-to-update-service-scripts-in-the-system) of the documentation for the script upgrade method.
 
+# Fine3399 / 说明
+
+Fine3399资料：https://gitee.com/opengisbook/Fine3399-Official
+莓底板/fine3399测试工程：https://gitee.com/xiayang0521/berrybaseboard-test
+早期固件：https://github.com/xiayang0521/rk3399-images/releases/tag/fine3399-images
+cm9vdA大佬适配的DTS：https://github.com/cm9vdA/build-linux/blob/master/boot/dts/rockchip/mainline/rk3399-fine3399.dts
+
+经测试，基于cm9vdA大佬仓库里的fine3399_defconfig和DTS设备树编译出来的uboot23.07和22.07，上电虽然能正常点亮输出uboot启动信息(HDMI)，但是引导linux内核启动进入系统后卡死，原因未知。
+而使用该DTS编译出来的linux kernel dtb，系统能正常工作，包括双网口，HDMI，PCIE设备，蓝色led。
+ophub大佬release出来的Fine3399镜像直接烧录，无法正常启动，原因还是uboot。
+
+之后又尝试，将xiayang0521的早期armbain固件提取出来的uboot引导分区镜像(https://github.com/QXY716/u-boot/blob/main/u-boot/rockchip/fine3399/uboot-bozz-rk3399.bin )，缝合进ophub大佬的固件之后，均能正常启动，内核5.15,6.1,6.6都通过。
+本人水平有限，根据固件缝合原理，整出了一个临时解决方法。修改了rebuild重构脚本，在Fine3399固件生成时将uboot-bozz-rk3399.bin写入，达到替换uboot的效果。
+代码语句：sudo dd if="${bootloader_path}/uboot-bozz-rk3399.bin" of="${loop_new}" bs=1k skip=32 seek=32 conv=notrunc 2>/dev/null
+
+Fine3399固件的DTS中已经开启了pcie2.0 x2通道，双网口，HDMI，led正常工作。
+
 # Armbian
 
 View Chinese description | [查看中文说明](README.cn.md)
