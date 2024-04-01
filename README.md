@@ -1,188 +1,181 @@
 > [!NOTE]
-> 由于内核中 `/boot/vmlinuz-xxx` 文件从 `32MB` 调整到了 `64MB`，所以必须使用最新的 `armbian-update` 脚本来更新内核，否则会导致内核更新失败，造成 Armbian 系统无法正常启动。请查看文档[第 12.9 节](documents/README.cn.md#129-如何更新系统中的服务脚本)的脚本升级方法。
+> Due to the adjustment of the `/boot/vmlinuz-xxx` file size from `32MB` to `64MB` in the kernel, it is necessary to use the latest `armbian-update` script to update the kernel. Failure to do so will result in the kernel update failing and the Armbian system being unable to boot normally. Please refer to [Section 12.9](documents/README.md#129-how-to-update-service-scripts-in-the-system) of the documentation for the script upgrade method.
 
-# Fine3399 / 说明
+# Armbian
 
-Fine3399资料：https://gitee.com/opengisbook/Fine3399-Official  
-莓底板/fine3399测试工程：https://gitee.com/xiayang0521/berrybaseboard-test  
-早期固件：https://github.com/xiayang0521/rk3399-images/releases/tag/fine3399-images  
-cm9vdA大佬适配的DTS：https://github.com/cm9vdA/build-linux/blob/master/boot/dts/rockchip/mainline/rk3399-fine3399.dts  
+View Chinese description | [查看中文说明](README.cn.md)
 
-经测试，基于cm9vdA大佬仓库里的fine3399_defconfig和DTS设备树编译出来的uboot23.07和22.07，上电虽然能正常点亮输出uboot启动信息(HDMI)，但是引导linux内核启动进入系统后卡死，原因未知。  
-而使用该DTS编译出来的linux kernel dtb，系统能正常工作，包括双网口，HDMI，PCIE设备，蓝色led。  
-ophub大佬release出来的Fine3399镜像直接烧录，无法正常启动，原因还是uboot。
+Armbian is a lightweight Linux system specially built for ARM chips based on Debian/Ubuntu. The Armbian system is lean, clean, and 100% compatible with and inherits the features and rich software ecosystem of the Debian/Ubuntu system. It can run securely and stably in TF/SD/USB and the device's eMMC. This project preserves the integrity of the official Armbian system and further expands its usage on devices such as TV boxes that are not officially supported. It adds some convenient operation commands. Now, you can replace the Android TV system on your TV box with the Armbian system, turning it into a powerful server.
 
-之后又尝试，将xiayang0521的早期armbain固件提取出来的uboot引导分区镜像(https://github.com/QXY716/u-boot/blob/main/u-boot/rockchip/fine3399/uboot-bozz-rk3399.bin )，缝合进ophub大佬的固件之后，均能正常启动，内核5.15,6.1,6.6都通过。  
-本人水平有限，根据固件缝合原理，整出了一个临时解决方法。修改了rebuild重构脚本，在Fine3399固件生成时将uboot-bozz-rk3399.bin写入，达到替换uboot的效果。  
-代码语句：sudo dd if="${bootloader_path}/uboot-bozz-rk3399.bin" of="${loop_new}" bs=1k skip=32 seek=32 conv=notrunc 2>/dev/null  
+This project relies on many [contributors](CONTRIBUTORS.md) to build the Armbian system for `Amlogic`, `Rockchip`, and `Allwinner` boxes, supports writing to eMMC for use, supports updating the kernel and other features. Detailed usage can be found in the [Armbian User Documentation](./documents). The latest Armbian system can be downloaded from [Releases](https://github.com/ophub/amlogic-s9xxx-armbian/releases). Welcome to `Fork` and personalize. If it's useful to you, you can click `Star` in the upper right corner of the repository to show support.
 
-Fine3399固件的DTS中已经开启了pcie2.0 x2通道，双网口，HDMI，led正常工作。  
+## Armbian System Description
 
-# Armbian / 岸边
-
-查看英文说明 | [View English description](README.md)
-
-Armbian（中文名：岸边）系统是基于 Debian/Ubuntu 而构建的专门用于 ARM 芯片的轻量级 Linux 系统。Armbian 系统精益、干净，并且 100% 兼容并继承了 Debian/Ubuntu 系统的功能和丰富的软件生态，可以安全稳定地运行在 TF/SD/USB 及设备的 eMMC 里。这个项目保留了 Armbian 官方系统的完整性，并进一步拓展了在电视盒子等一些非官方支持设备上的使用，增加了一些便捷操作指令。现在你可以将电视盒子的安卓 TV 系统更换为 Armbian 系统，让他成为一台功能强大的服务器。
-
-本项目依托众多的[贡献者](CONTRIBUTORS.md)，为 `Amlogic`，`Rockchip` 和 `Allwinner` 盒子构建 Armbian 系统，支持写入 eMMC 中使用，支持更新内核等功能，使用方法详见 [Armbian 使用文档](./documents/README.cn.md)。最新的 Armbian 系统可以在 [Releases](https://github.com/ophub/amlogic-s9xxx-armbian/releases) 中下载。欢迎 `Fork` 并进行个性化定制。如果对你有用，可以点仓库右上角的 `Star` 表示支持。
-
-## Armbian 系统说明
-
-| 芯片  | 设备 | [内核](https://github.com/ophub/kernel) | [Armbian](https://github.com/ophub/amlogic-s9xxx-armbian/releases) |
+| SoC | Device | [Kernel](https://github.com/ophub/kernel) | [Armbian](https://github.com/ophub/amlogic-s9xxx-armbian/releases) |
 | ---- | ---- | ---- | ---- |
-| a311d | [Khadas-VIM3](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/99) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_a311d.img |
-| s922x | [Beelink-GT-King](https://github.com/ophub/amlogic-s9xxx-armbian/issues/370), [Beelink-GT-King-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/707), [Ugoos-AM6-Plus](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/464), [ODROID-N2](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/201), [X88-King](https://github.com/ophub/amlogic-s9xxx-armbian/issues/988), [Ali-CT2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1150) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s922x.img |
-| s905x3 | [X96-Max+](https://github.com/ophub/amlogic-s9xxx-armbian/issues/351), [HK1-Box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/414), [Vontar-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1006), [H96-Max-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1250), [Ugoos-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/782), [TX3(QZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/644), [TX3(BZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1077), [X96-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/366), [X96-Max+_A100](https://github.com/ophub/amlogic-s9xxx-armbian/issues/779), [A95XF3-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/157), [Tencent-Aurora-3Pro(s905x3-b)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/506), [X96-Max+Q1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/788), [X96-Max+100W](https://github.com/ophub/amlogic-s9xxx-armbian/issues/909), [X96-Max+_2101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1086), [Infinity-B32](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1181), [Whale](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1166), [X88-Pro-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1621), [X99-Max-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1621), [Transpeed-X3-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1621) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905x3.img |
-| s905x2 | [X96Max-4G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/453), [X96Max-2G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/95), [MECOOL-KM3-4G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/79), [Tanix-Tx5-Max](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/351), [A95X-F2](https://github.com/ophub/amlogic-s9xxx-armbian/issues/851) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905x2.img |
-| s912 | [Tanix-TX8-Max](https://github.com/ophub/amlogic-s9xxx-armbian/issues/500), [Tanix-TX9-Pro(3G)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/315), [Tanix-TX9-Pro(2G)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/740), [Tanix-TX92](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72#issuecomment-1012790770), [Nexbox-A1](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/260), [Nexbox-A95X-A2](https://www.cafago.com/en/p-v2979eu-2g.html),  [A95X](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/260), [H96-Pro-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72#issuecomment-1013071513), [VORKE-Z6-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72), [Mecool-M8S-PRO-L](https://github.com/ophub/amlogic-s9xxx-armbian/issues/158), [Vontar-X92](https://github.com/ophub/amlogic-s9xxx-armbian/issues/525), [T95Z-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/668), [Octopus-Planet](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1020), [Phicomm-T1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/522), [TX3-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1882) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s912.img |
-| s905d | [MECOOL-KI-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/59), [Phicomm-N1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/925), [SML-5442TW](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/451) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905d.img |
-| s905x | [HG680P](https://github.com/ophub/amlogic-s9xxx-armbian/issues/262), [B860H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/60), [TBee-Box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/98), [T95](https://github.com/ophub/amlogic-s9xxx-armbian/issues/285), [TX9](https://github.com/ophub/amlogic-s9xxx-armbian/issues/645), [XiaoMI-3S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1405), [X96](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1480) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905x.img |
-| s905w | [X96-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/621), [TX3-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1062), [W95](https://github.com/ophub/amlogic-s9xxx-armbian/issues/570), [X96W/FunTV](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1044), [MXQ-Pro-4K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1140) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905w.img |
-| s905mb | [S65](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1644) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905mb.img |
-| s905l | [UNT402A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1481), [M201-S](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/444), [MiBox-4](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2101), [MiBox-4C](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1826), [MG101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1912) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l.img |
-| s905l2 | [MGV2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [MGV2000-K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1839), [MGV3000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921), [Wojia-TV-IPBS9505](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [M301A](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/405), [E900v21E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1278), [e900v21d](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2127) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l2.img |
-| s905l3 | [CM211-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1318), [CM311-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/763), [HG680-LC](https://github.com/ophub/amlogic-s9xxx-armbian/issues/978), [M401A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921#issuecomment-1453143251), [UNT400G1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1277), [UNT402A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1481), [ZXV10-BV310](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1512), [M411A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1817), [ZXV10-B860AV3.2-M](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2012), [E900V22D-2](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2058) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l3.img |
-| s905l3a | [E900V22C/D](https://github.com/Calmact/e900v22c), [CM311-1a-YST](https://github.com/ophub/amlogic-s9xxx-armbian/issues/517), [M401A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/732), [M411A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/517), [UNT403A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/970), [UNT413A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/970), [ZTE-B863AV3.2-M](https://github.com/ophub/amlogic-s9xxx-armbian/issues/741), [CM311-1a-CH](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1508), [IP112H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1520) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l3a.img |
-| s905l3b | [CM211-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1180), [CM311-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1268), [E900V22D](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1256), [E900V21E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1514), [E900V22E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/939), [M302A/M304A](https://github.com/ophub/amlogic-s9xxx-armbian/pull/615), [Hisense-IP103H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1154), [TY1608](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1332), [TY1608](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1568), [MGV2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1613), [B860AV-2.1M](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1598), [UNT403A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1712), [RG020ET-CA](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1860) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l3b.img |
-| s905lb | [Q96-mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/734), [BesTV-R3300L](https://github.com/ophub/amlogic-s9xxx-armbian/pull/993), [SumaVision-Q7](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1190), [MG101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1570), [s65](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2128) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905lb.img |
-| s905 | [Beelink-Mini-MX-2G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/127), [Sunvell-T95M](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/337), [MXQ-Pro+4K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/715), [SumaVision-Q5](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1175) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905.img |
+| a311d | [Khadas-VIM3](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/99) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_a311d.img |
+| s922x | [Beelink-GT-King](https://github.com/ophub/amlogic-s9xxx-armbian/issues/370), [Beelink-GT-King-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/707), [Ugoos-AM6-Plus](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/464), [ODROID-N2](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/201), [X88-King](https://github.com/ophub/amlogic-s9xxx-armbian/issues/988), [Ali-CT2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1150) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s922x.img |
+| s905x3 | [X96-Max+](https://github.com/ophub/amlogic-s9xxx-armbian/issues/351), [HK1-Box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/414), [Vontar-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1006), [H96-Max-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1250), [Ugoos-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/782), [TX3(QZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/644), [TX3(BZ)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1077), [X96-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/366), [X96-Max+_A100](https://github.com/ophub/amlogic-s9xxx-armbian/issues/779), [A95XF3-Air](https://github.com/ophub/amlogic-s9xxx-armbian/issues/157), [Tencent-Aurora-3Pro(s905x3-b)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/506), [X96-Max+Q1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/788), [X96-Max+100W](https://github.com/ophub/amlogic-s9xxx-armbian/issues/909), [X96-Max+_2101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1086), [Infinity-B32](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1181), [Whale](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1166), [X88-Pro-X3](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1621), [X99-Max-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1621), [Transpeed-X3-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1621) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905x3.img |
+| s905x2 | [X96Max-4G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/453), [X96Max-2G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/95), [MECOOL-KM3-4G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/79), [Tanix-Tx5-Max](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/351), [A95X-F2](https://github.com/ophub/amlogic-s9xxx-armbian/issues/851) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905x2.img |
+| s912 | [Tanix-TX8-Max](https://github.com/ophub/amlogic-s9xxx-armbian/issues/500), [Tanix-TX9-Pro(3G)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/315), [Tanix-TX9-Pro(2G)](https://github.com/ophub/amlogic-s9xxx-armbian/issues/740), [Tanix-TX92](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72#issuecomment-1012790770), [Nexbox-A1](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/260), [Nexbox-A95X-A2](https://www.cafago.com/en/p-v2979eu-2g.html),  [A95X](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/260), [H96-Pro-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72#issuecomment-1013071513), [VORKE-Z6-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/72), [Mecool-M8S-PRO-L](https://github.com/ophub/amlogic-s9xxx-armbian/issues/158), [Vontar-X92](https://github.com/ophub/amlogic-s9xxx-armbian/issues/525), [T95Z-Plus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/668), [Octopus-Planet](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1020), [Phicomm-T1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/522), [TX3-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1882) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s912.img |
+| s905d | [MECOOL-KI-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/59), [Phicomm-N1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/925), [SML-5442TW](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/451) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905d.img |
+| s905x | [HG680P](https://github.com/ophub/amlogic-s9xxx-armbian/issues/262), [B860H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/60), [TBee-Box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/98), [T95](https://github.com/ophub/amlogic-s9xxx-armbian/issues/285), [TX9](https://github.com/ophub/amlogic-s9xxx-armbian/issues/645), [XiaoMI-3S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1405), [X96](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1480) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905x.img |
+| s905w | [X96-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/621), [TX3-Mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1062), [W95](https://github.com/ophub/amlogic-s9xxx-armbian/issues/570), [X96W/FunTV](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1044), [MXQ-Pro-4K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1140) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905w.img |
+| s905mb | [S65](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1644) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905mb.img |
+| s905l | [UNT402A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1481), [M201-S](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/444), [MiBox-4](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2101), [MiBox-4C](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1826), [MG101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1912) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l.img |
+| s905l2 | [MGV2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [MGV2000-K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1839), [MGV3000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921), [Wojia-TV-IPBS9505](https://github.com/ophub/amlogic-s9xxx-armbian/issues/648), [M301A](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/405), [E900v21E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1278), [e900v21d](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2127) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l2.img |
+| s905l3 | [CM211-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1318), [CM311-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/763), [HG680-LC](https://github.com/ophub/amlogic-s9xxx-armbian/issues/978), [M401A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/921#issuecomment-1453143251), [UNT400G1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1277), [UNT402A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1481), [ZXV10-BV310](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1512), [M411A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1817), [ZXV10-B860AV3.2-M](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2012), [E900V22D-2](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2058) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l3.img |
+| s905l3a | [E900V22C/D](https://github.com/Calmact/e900v22c), [CM311-1a-YST](https://github.com/ophub/amlogic-s9xxx-armbian/issues/517), [M401A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/732), [M411A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/517), [UNT403A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/970), [UNT413A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/970), [ZTE-B863AV3.2-M](https://github.com/ophub/amlogic-s9xxx-armbian/issues/741), [CM311-1a-CH](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1508), [IP112H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1520) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l3a.img |
+| s905l3b | [CM211-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1180), [CM311-1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1268), [E900V22D](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1256), [E900V21E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1514), [E900V22E](https://github.com/ophub/amlogic-s9xxx-armbian/issues/939), [M302A/M304A](https://github.com/ophub/amlogic-s9xxx-armbian/pull/615), [Hisense-IP103H](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1154), [TY1608](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1332), [TY1608](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1568), [MGV2000](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1613), [B860AV-2.1M](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1598), [UNT403A](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1712), [RG020ET-CA](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1860) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905l3b.img |
+| s905lb | [Q96-mini](https://github.com/ophub/amlogic-s9xxx-armbian/issues/734), [BesTV-R3300L](https://github.com/ophub/amlogic-s9xxx-armbian/pull/993), [SumaVision-Q7](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1190), [MG101](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1570), [s65](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2128) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905lb.img |
+| s905 | [Beelink-Mini-MX-2G](https://github.com/ophub/amlogic-s9xxx-armbian/issues/127), [Sunvell-T95M](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/337), [MXQ-Pro+4K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/715), [SumaVision-Q5](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1175) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | amlogic_s905.img |
 | rk3588 | [Radxa-Rock5B](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1240), [Beelink-IPC-R](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/415), [HLink-H88K](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1726), [HLink-H88K-V3](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1726) | [rk3588](https://github.com/ophub/kernel/releases/tag/kernel_rk3588) | rockchip_boxname.img |
 | rk3568 | [FastRhino-R66S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1061), [FastRhino-R68S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/774), [Radxa-E25](https://wiki.radxa.com/Rock3/CM/CM3I/E25), [NanoPi-R5S](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1217), [NanoPi-R5C](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1217), [HLink-H66K](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1726), [HLink-H68K](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1726), [HLink-H69K](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1726), [Seewo-sv21](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2017), [Mrkaio-m68s](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2155) | [rk35xx](https://github.com/ophub/kernel/releases/tag/kernel_rk35xx)<br />[6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
 | rk3566 | [Panther-X2](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1319), [JP-TvBox](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1867) | [rk35xx](https://github.com/ophub/kernel/releases/tag/kernel_rk35xx)<br />[6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
 | rk3528 | [HLink-H28K](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1726) | [rk35xx](https://github.com/ophub/kernel/releases/tag/kernel_rk35xx) | rockchip_boxname.img |
 | rk3399 | [EAIDK-610](https://github.com/ophub/amlogic-s9xxx-armbian/pull/991), [King3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1080), [TN3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1094), [Kylin3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1132), [ZCube1-Max](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1247), [CRRC](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1280), [SMART-AM40](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1317), [SW799](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1326), [ZYSJ](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1380), [DG-3399](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1492), [DLFR100](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1522), [Emb3531](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1549), [Leez-p710](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1609), [tvi3315a](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1687), [xiaobao](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1698), [Fine3399](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1790), [Firefly-RK3399](https://github.com/ophub/amlogic-s9xxx-openwrt/issues/491), [LX-R3S](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2026), [Hugsun-x99](https://github.com/ophub/amlogic-s9xxx-armbian/pull/2050), [Tb-ls3399](https://github.com/ophub/amlogic-s9xxx-armbian/issues/2146) | [6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
-| rk3328 | [BeikeYun](https://github.com/ophub/amlogic-s9xxx-armbian/issues/852), [Chainedbox-L1-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1680), [Station-M1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1313), [Bqeel-MVR9](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1313), [Renegade/Firefly](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1861) | [全部](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
+| rk3328 | [BeikeYun](https://github.com/ophub/amlogic-s9xxx-armbian/issues/852), [Chainedbox-L1-Pro](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1680), [Station-M1](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1313), [Bqeel-MVR9](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1313), [Renegade/Firefly](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1861) | [All](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
 | rk3318 | [RX3318-Box](https://github.com/ophub/amlogic-s9xxx-armbian/pull/2129) | [6.x.y](https://github.com/ophub/kernel/releases/tag/kernel_stable) | rockchip_boxname.img |
 | h6 | [Vplus](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1100), [Tanix-TX6](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1120), [TQC-A01](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1638) | [5.15.y](https://github.com/ophub/kernel/releases/tag/kernel_stable)<br>[h6](https://github.com/ophub/kernel/releases/tag/kernel_h6) | allwinner_boxname.img |
 
 > [!TIP]
-> 目前 [s905 的盒子](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1173)只能在 `TF/SD/USB` 中使用，其他型号的盒子支持写入 `EMMC` 中使用。更多信息请查阅[支持的设备列表说明](build-armbian/armbian-files/common-files/etc/model_database.conf)。可以参考说明文档中 12.15 章节的方法[添加新的支持设备](documents/README.cn.md#1215-如何添加新的支持设备)。使用前先阅读 [Armbian 使用文档](./documents/README.cn.md)，常见问题都有解决方法。
+> At present, the [s905 box](https://github.com/ophub/amlogic-s9xxx-armbian/issues/1173) can only be used in `TF/SD/USB`. Other models of boxes support writing to `EMMC` for use. For more information, please refer to the [Supported Device List Description](build-armbian/armbian-files/common-files/etc/model_database.conf). You can refer to the method in Section 12.15 of the instruction document to [add new supported devices](documents/README.md#1215-how-to-add-new-supported-devices). Please read the [Armbian User Documentation](./documents) before use. It provides solutions to common issues.
 
-## 安装及升级 Armbian 的相关说明
+## Installation and Upgrade Instructions for Armbian
 
-选择和你的盒子型号对应的 Armbian 系统，不同设备的使用方法查看对应的说明。
+Choose the Armbian system that corresponds to your box model, and refer to the corresponding instructions for different devices.
 
-- ### 安装 Armbian 到 EMMC
+- ### Install Armbian to EMMC
 
-1. `Rockchip` 平台的安装方法请查看说明文档中的 [第 8 章节](documents/README.cn.md)。
+1. For `Rockchip` platform, please refer to the [Chapter 8](documents#8-installing-armbian-to-emmc) in the instruction document.
 
-2. `Amlogic` 和 `Allwinner` 平台，使用 [Rufus](https://rufus.ie/) 或者 [balenaEtcher](https://www.balena.io/etcher/) 等工具将系统写入 USB 里，然后把写好系统的 USB 插入盒子。登录 Armbian 系统 (默认用户: root, 默认密码: 1234) → 输入命令：
+2. For `Amlogic` and `Allwinner` platforms, use tools such as [Rufus](https://rufus.ie/) or [balenaEtcher](https://www.balena.io/etcher/) to write the system to a USB stick, then insert the USB stick with the written system into the box. Log in to the Armbian system (default user: root, default password: 1234) → Enter the command:
 
 ```shell
 armbian-install
 ```
 
-| 可选参数  | 默认值   | 选项     | 说明                |
-| -------  | ------- | ------  | -----------------   |
-| -m       | no      | yes/no  | 使用 Mainline u-boot |
-| -a       | yes     | yes/no  | 使用 [ampart](https://github.com/7Ji/ampart) 分区表调整工具 |
-| -l       | no      | yes/no  | List. 显示全部设备列表 |
+| Optional | Default | Options | Description       |
+| -------- | ------- | ------- | ----------------- |
+| -m       | no      | yes/no  | Use Mainline u-boot |
+| -a       | yes     | yes/no  | Use [ampart](https://github.com/7Ji/ampart) partition adjustment tool |
+| -l       | no      | yes/no  | List. Display all device lists |
 
-举例: `armbian-install -m yes -a no`
+Example: `armbian-install -m yes -a no`
 
-- ### 更新 Armbian 内核
+- ### Update Armbian Kernel
 
-登录 Armbian 系统 → 输入命令：
+Log in to the Armbian system → Enter the command:
 
 ```shell
-# 使用 root 用户运行 (sudo -i)
-# 如果不指定参数，将更新为最新版本。
+# Run as root user (sudo -i)
+# If no parameter is specified, it will be updated to the latest version.
 armbian-update
 ```
 
-| 可选参数  | 默认值        | 选项           | 说明                              |
+| Optional | Default      | Options       | Description                      |
 | -------- | ------------ | ------------- | -------------------------------- |
-| -r       | ophub/kernel | `<owner>/<repo>` | 设置从 github.com 下载内核的仓库  |
-| -u       | 自动化        | stable/flippy/dev/beta/rk3588/rk35xx/h6 | 设置使用的内核的 [tags 后缀](https://github.com/ophub/kernel/releases) |
-| -k       | 最新版        | 内核版本       | 设置[内核版本](https://github.com/ophub/kernel/releases/tag/kernel_stable)  |
-| -b       | yes          | yes/no        | 更新内核时自动备份当前系统使用的内核    |
-| -m       | no           | yes/no        | 使用主线 u-boot                    |
-| -s       | 无           | 无/磁盘名称     | [SOS] 恢复 eMMC/NVMe/sdX 等磁盘中的系统内核 |
-| -h       | 无           | 无             | 查看使用帮助                       |
+| -r       | ophub/kernel | `<owner>/<repo>` | Set the repository to download the kernel from github.com |
+| -u       | Automation   | stable/flippy/dev/beta/rk3588/rk35xx/h6 | Set the [tags suffix](https://github.com/ophub/kernel/releases) of the kernel in use |
+| -k       | Latest version | Kernel version | Set the [kernel version](https://github.com/ophub/kernel/releases/tag/kernel_stable) |
+| -b       | yes          | yes/no        | Automatically back up the current system's kernel when updating the kernel |
+| -m       | no           | yes/no        | Use mainline u-boot |
+| -s       | None         | None/DiskName | [SOS] Restore the system kernel in eMMC/NVMe/sdX and other disks |
+| -h       | None         | None          | View help |
 
-举例: `armbian-update -k 5.15.50 -u dev`
+Example: `armbian-update -k 5.15.50 -u dev`
 
-通过 `-k` 参数指定内核版本号时，可以准确指定具体版本号，例如：`armbian-update -k 5.15.50`，也可以模糊指定到内核系列，例如：`armbian-update -k 5.15`，当模糊指定时将自动使用指定系列的最新版本。
+When specifying the kernel version number through the `-k` parameter, you can accurately specify a specific version number, for example: `armbian-update -k 5.15.50`, or you can specify the kernel series vaguely, for example: `armbian-update -k 5.15`. When vaguely specified, the latest version of the specified series will be automatically used.
 
-更新内核时会自动备份当前系统使用的内核，存储路径在 `/ddbr/backup` 目录里，保留最近使用过的 3 个版本的内核，如果新安装的内核不稳定，可以随时恢复回备份的内核。如果更新内核失败导致系统无法启动，可以通过 `armbian-update -s` 来恢复系统内核。更多说明详见 [帮助文档](documents/README.cn.md)
+When updating the kernel, the currently used kernel will be automatically backed up and stored in the `/ddbr/backup` directory. The backup keeps the three most recent versions of the kernel. If the newly installed kernel is unstable, you can easily restore the backup kernel at any time. If the kernel update fails and the system cannot boot, you can restore the system kernel using `armbian-update -s`. For more details, see the [Help Document](documents#10-updating-armbian-kernel).
 
-- ### 安装常用软件
+- ### Replace Armbian sources
 
-登录 Armbian 系统 → 输入命令：
+Log in to the Armbian system → Enter the command:
+
+```shell
+armbian-apt
+```
+
+Choosing the appropriate software source for your country or region can improve software download speeds. For more details, see the [Help Document](documents#11-installing-common-software).
+
+- ### Install Common Software
+
+Log in to the Armbian system → Enter the command:
 
 ```shell
 armbian-software
 ```
 
-使用 `armbian-software -u` 命令可以更新本地的软件中心列表。根据用户在 [Issue](https://github.com/ophub/amlogic-s9xxx-armbian/issues) 中的需求反馈，逐步整合常用[软件](build-armbian/armbian-files/common-files/usr/share/ophub/armbian-software/software-list.conf)，实现一键安装/更新/卸载等快捷操作。包括 `docker 镜像`、`桌面软件`、`应用服务` 等。详见更多[说明](documents/armbian_software.md)。
+The command `armbian-software -u` can update the local software center list. Based on the demand feedback from users in [Issue](https://github.com/ophub/amlogic-s9xxx-armbian/issues), we gradually integrate commonly used [software](build-armbian/armbian-files/common-files/usr/share/ophub/armbian-software/software-list.conf) to achieve one-click installation/update/uninstallation and other shortcut operations. This includes `docker images`, `desktop software`, `application services`, etc. For more details, see the [instructions](documents/armbian_software.md).
 
-- ### 修改 Armbian 配置
+- ### Modify Armbian Configuration
 
-登录 Armbian 系统 → 输入命令：
+Log in to the Armbian system → Enter the command:
 
 ```shell
 armbian-config
 ```
 
-- ### 为 Armbian 创建 swap
+- ### Create swap for Armbian
 
-如果你在使用 `docker` 等内存占用较大的应用时，觉得当前盒子的内存不够使用，可以创建 `swap` 虚拟内存分区，将磁盘空间的一定容量虚拟成内存来使用。下面命令输入参数的单位是 `GB`，默认为 `1`。
+If you feel that the current box's memory is insufficient when using applications that consume a lot of memory, such as `docker`, you can create a `swap` virtual memory partition, virtually using a certain capacity of disk space as memory. The unit of the input parameter of the following command is `GB`, the default is `1`.
 
-登录 Armbian 系统 → 输入命令：
+Log in to the Armbian system → Enter the command:
 
 ```shell
 armbian-swap 1
 ```
 
-- ### 控制 LED 显示
+- ### Control LED Display
 
-登录 Armbian 系统 → 输入命令：
+Log in to the Armbian system → Enter the command:
 
 ```shell
 armbian-openvfd
 ```
 
-根据 [LED 屏显示控制说明](documents/led_screen_display_control.md) 进行调试。
+Debug according to the [LED Screen Display Control Instructions](documents/led_screen_display_control.md).
 
-- ### 备份/还原 EMMC 原系统
+- ### Backup/Restore EMMC Original System
 
-支持在 `TF/SD/USB` 中对盒子的 `EMMC` 分区进行备份/恢复。建议您在全新的盒子里安装 Armbian 系统前，先对当前盒子自带的安卓 TV 系统进行备份，以便日后在恢复电视系统等情况下使用。
+Supports backing up/restoring the `EMMC` partition of the box in `TF/SD/USB`. Before installing the Armbian system in a brand new box, it is recommended that you back up the Android TV system that comes with the current box so that it can be used in the future to restore the TV system and other situations.
 
-请从 `TF/SD/USB` 启动 Armbian 系统 → 输入命令：
+Please boot the Armbian system from `TF/SD/USB` → Enter the command:
 
 ```shell
 armbian-ddbr
 ```
 
-根据提示输入 `b` 进行系统备份，输入 `r` 进行系统恢复。
+Enter `b` according to the prompt to back up the system, and enter `r` to restore the system.
 
 > [!IMPORTANT]
-> 除此之外也可以通过线刷的方法，将安卓系统刷入 eMMC 中，安卓系统的下载镜像可在 [Tools](https://github.com/ophub/kernel/releases/tag/tools) 中查找。
+> In addition, the Android system can also be flashed into eMMC using the method of flashing via a cable. The download image of the Android system can be found in [Tools](https://github.com/ophub/kernel/releases/tag/tools).
 
-- ### 在 Armbian 中编译内核
+- ### Compile the Kernel in Armbian
 
-在 Armbian 中编译内核的用法详见 [编译内核](compile-kernel/README.cn.md) 说明文档。登录 Armbian 系统 → 输入命令：
+For the usage of compiling the kernel in Armbian, please refer to the [Compile Kernel](compile-kernel) instruction document. Log in to the Armbian system → Enter the command:
 
 ```shell
 armbian-kernel -u
 armbian-kernel -k 6.6.12
 ```
 
-- ### 更多使用说明
+- ### More Usage Instructions
 
-将本地系统中的全部服务脚本更新到最新版本，可以登录 Armbian 系统 → 输入命令：
+To update all service scripts in the local system to the latest version, you can log in to the Armbian system → Enter the command:
 
 ```shell
 armbian-sync
 ```
 
-在 Armbian 的使用中，一些可能遇到的常见问题详见 [documents](documents/README.cn.md)
+In the use of Armbian, some common problems that may be encountered can be found in [documents](documents)
 
-## 本地化打包
+## Local Packaging
 
-1. 克隆仓库到本地 `git clone --depth 1 https://github.com/ophub/amlogic-s9xxx-armbian.git`
+1. Clone the repository to local `git clone --depth 1 https://github.com/ophub/amlogic-s9xxx-armbian.git`
 
-2. 安装必要的软件包（脚本仅在 x86_64 Ubuntu-20.04/22.04 下做过测试）
+2. Install the necessary software packages (scripts have only been tested under x86_64 Ubuntu-20.04/22.04)
 
 ```shell
 sudo apt-get update -y
@@ -191,42 +184,42 @@ sudo apt-get full-upgrade -y
 sudo apt-get install -y $(cat compile-kernel/tools/script/ubuntu2204-build-armbian-depends)
 ```
 
-3. 进入 `~/amlogic-s9xxx-armbian` 根目录，在根目录下创建文件夹 `build/output/images` ，并上传 Armbian 镜像文件 ( 如：`Armbian_21.11.0-trunk_Odroidn2_current_5.15.50.img` ) 到 `~/amlogic-s9xxx-armbian/build/output/images` 目录里。原版 Armbian 镜像文件名称中的发行版本号（如：`21.11.0`）和内核版本号（如：`5.15.50`）请保留，它将在重构后用作 Armbian 系统的名称。
+3. Enter the `~/amlogic-s9xxx-armbian` root directory, create a `build/output/images` folder in the root directory, and upload the Armbian image file (such as `Armbian_21.11.0-trunk_Odroidn2_current_5.15.50.img`) to `~/amlogic-s9xxx-armbian/build/output/images` directory. Please keep the release version number (such as `21.11.0`) and the kernel version number (such as `5.15.50`) in the original Armbian image file name. It will be used as the name of the Armbian system after restructuring.
 
-4. 进入 `~/amlogic-s9xxx-armbian` 根目录，然后运行 `sudo ./rebuild -b s905x3 -k 6.6.12` 命令即可生成指定 board 的 Armbian 镜像文件。生成的文件保存在 `build/output/images` 目录里。
+4. Enter the `~/amlogic-s9xxx-armbian` root directory, and then run the `sudo ./rebuild -b s905x3 -k 6.6.12` command to generate the Armbian image file for the specified board. The generated file is saved in the `build/output/images` directory.
 
-- ### 本地化打包参数说明
+- ### Local Packaging Parameter Description
 
-| 参数  | 含义       | 说明        |
-| ---- | ---------- | ---------- |
-| -b   | Board      | 指定电视盒子型号，如 `-b s905x3` . 多个型号使用 `_` 进行连接，如 `-b s905x3_s905d` . 使用 `all` 表示全部型号。型号代码详见 [model_database.conf](build-armbian/armbian-files/common-files/etc/model_database.conf) 中的 `BOARD` 设置。默认值：`all` |
-| -r   | KernelRepo | 指定 github.com 内核仓库的 `<owner>/<repo>`。默认值：`ophub/kernel` |
-| -u   | kernelUsage | 设置使用的内核的 `tags 后缀`，如 [stable](https://github.com/ophub/kernel/releases/tag/kernel_stable), [flippy](https://github.com/ophub/kernel/releases/tag/kernel_flippy), [dev](https://github.com/ophub/kernel/releases/tag/kernel_dev), [beta](https://github.com/ophub/kernel/releases/tag/kernel_beta)。默认值：`stable` |
-| -k   | Kernel     | 指定 [kernel](https://github.com/ophub/kernel/releases/tag/kernel_stable) 名称，如 `-k 6.6.12` . 多个内核使用 `_` 进行连接，如 `-k 6.6.12_5.15.50` 。通过 `-k` 参数自由指定的内核版本只对使用 `stable/flippy/dev/beta` 的内核有效。其他内核系列例如 [rk3588](https://github.com/ophub/kernel/releases/tag/kernel_rk3588) / [rk35xx](https://github.com/ophub/kernel/releases/tag/kernel_rk35xx) / [h6](https://github.com/ophub/kernel/releases/tag/kernel_h6) 等只能使用特定内核。  |
-| -a   | AutoKernel | 设置是否自动采用同系列最新版本内核。当为 `true` 时，将自动在内核库中查找在 `-k` 中指定的内核如 6.6.12 的同系列是否有更新的版本，如有 6.6.12 之后的最新版本时，将自动更换为最新版。设置为 `false` 时将编译指定版本内核。默认值：`true` |
-| -t   | RootfsType | 对系统的 ROOTFS 分区的文件系统类型进行设置，可选项为 `ext4` 或 `btrfs` 类型。例如： `-t btrfs`。默认值：`ext4` |
-| -s   | Size       | 对系统的镜像分区大小进行设置，只设置 ROOTFS 分区大小时可以只指定一个数值，例如： `-s 2560`。需要同时设置 BOOTFS 和 ROOTFS 分区大小时，使用 / 对两个数值进行连接，例如： `-s 512/2560`。默认值：`512/2560` |
-| -n   | BuilderName | 设置 Armbian 系统构建者签名。设置签名时请勿包含空格。默认值：`无` |
+| Parameter | Meaning     | Description |
+| ----      | ----------  | ----------  |
+| -b        | Board      | Specify the TV box model, such as `-b s905x3`. Connect multiple models with `_`, such as `-b s905x3_s905d`. Use `all` to represent all models. The model code can be found in the `BOARD` setting in [model_database.conf](build-armbian/armbian-files/common-files/etc/model_database.conf). Default value: `all` |
+| -r        | KernelRepo | Specify the `<owner>/<repo>` of the github.com kernel repository. Default value: `ophub/kernel` |
+| -u        | kernelUsage | Set the `tags suffix` of the kernel used, such as [stable](https://github.com/ophub/kernel/releases/tag/kernel_stable), [flippy](https://github.com/ophub/kernel/releases/tag/kernel_flippy), [dev](https://github.com/ophub/kernel/releases/tag/kernel_dev), [beta](https://github.com/ophub/kernel/releases/tag/kernel_beta). Default value: `stable` |
+| -k        | Kernel     | Specify [kernel](https://github.com/ophub/kernel/releases/tag/kernel_stable) name, such as `-k 6.6.12`. Connect multiple kernels with `_`, such as `-k 6.6.12_5.15.50`. The kernel version freely specified by the `-k` parameter is only valid for kernels using `stable/flippy/dev/beta`. Other kernel series such as [rk3588](https://github.com/ophub/kernel/releases/tag/kernel_rk3588) / [rk35xx](https://github.com/ophub/kernel/releases/tag/kernel_rk35xx) / [h6](https://github.com/ophub/kernel/releases/tag/kernel_h6) can only use specific kernels. |
+| -a        | AutoKernel | Set whether to automatically adopt the latest version of the same series of kernels. When it is `true`, it will automatically look for whether there is a newer version of the same series in the kernel library in the kernel specified in `-k`, such as 6.6.12. If there is a latest version after 6.6.12, it will be automatically changed to the latest version. When set to `false`, it will compile the specified version of the kernel. Default value: `true` |
+| -t        | RootfsType | Set the file system type of the system's ROOTFS partition, the options are `ext4` or `btrfs` type. For example: `-t btrfs`. Default value: `ext4` |
+| -s        | Size       | Set the size of the system's image partitions. When setting only the ROOTFS partition size, you can specify a single value, for example: `-s 2560`. When setting both BOOTFS and ROOTFS partition sizes, use / to connect the two values, for example: `-s 512/2560`. The default value is `512/2560` |
+| -n        | BuilderName | Set the Armbian system builder signature. Do not include spaces when setting the signature. Default value: `None` |
 
-- `sudo ./rebuild` : 使用默认配置，对全部型号的电视盒子进行打包。
-- `sudo ./rebuild -b s905x3 -k 6.6.12` : 推荐使用. 使用默认配置进行相关内核打包。
-- `sudo ./rebuild -b s905x3 -k 6.1.y` : 使用默认配置进行相关内核打包，内核使用 6.1.y 系列的最新版。
-- `sudo ./rebuild -b s905x3_s905d -k 6.6.12_5.15.50` : 使用默认配置，进行多个内核同时打包。使用 `_` 进行多内核参数连接。
-- `sudo ./rebuild -b s905x3 -k 6.6.12 -s 2560` : 使用默认配置，指定一个内核，一个型号进行打包，系统大小设定为2560MiB。
-- `sudo ./rebuild -b s905x3_s905d`  使用默认配置，对多个型号的电视盒子进行全部内核打包, 使用 `_` 进行多型号连接。
-- `sudo ./rebuild -k 6.6.12_5.15.50` : 使用默认配置，指定多个内核，进行全部型号电视盒子进行打包, 内核包使用 `_` 进行连接。
-- `sudo ./rebuild -k 6.6.12_5.15.50 -a true` : 使用默认配置，指定多个内核，进行全部型号电视盒子进行打包, 内核包使用 `_` 进行连接。自动升级到同系列最新内核。
-- `sudo ./rebuild -t btrfs -s 2560 -k 6.6.12` : 使用默认配置，设置文件系统为 btrfs 格式，分区大小为 2560MiB, 并指定内核为 6.6.12 ，对全部型号电视盒子进行打包。
+- `sudo ./rebuild`: Use the default configuration to package all models of TV boxes.
+- `sudo ./rebuild -b s905x3 -k 6.6.12`: Recommended. Use the default configuration to package related kernels.
+- `sudo ./rebuild -b s905x3 -k 6.1.y` : Package the relevant kernels using the default configuration; the kernel utilizes the latest version of the 6.1.y series.
+- `sudo ./rebuild -b s905x3_s905d -k 6.6.12_5.15.50`: Use the default configuration, package multiple kernels at the same time. Use `_` to connect multiple kernel parameters.
+- `sudo ./rebuild -b s905x3 -k 6.6.12 -s 2560`: Use the default configuration, specify a kernel, a model for packaging, the system size is set to 2560MiB.
+- `sudo ./rebuild -b s905x3_s905d` Use the default configuration, package all kernels for multiple models of TV boxes, use `_` to connect multiple models.
+- `sudo ./rebuild -k 6.6.12_5.15.50`: Use the default configuration, specify multiple kernels, and package all models of TV boxes, the kernel package uses `_` for connection.
+- `sudo ./rebuild -k 6.6.12_5.15.50 -a true`: Use the default configuration, specify multiple kernels, and package all models of TV boxes, the kernel package uses `_` for connection. Automatically upgrade to the latest kernel of the same series.
+- `sudo ./rebuild -t btrfs -s 2560 -k 6.6.12`: Use the default configuration, set the file system to btrfs format, the partition size is 2560MiB, and specify the kernel as 6.6.12, package for all models of TV boxes.
 
-## 使用 GitHub Actions 进行编译
+## Use GitHub Actions for Compilation
 
-1. 关于 Workflows 文件的配置在 [build-armbian.yml](.github/workflows/build-armbian.yml) 文件里。
+1. The configuration of the Workflows file can be found in the [build-armbian.yml](.github/workflows/build-armbian.yml) file.
 
-2. 全新编译：在 [Actions](https://github.com/ophub/amlogic-s9xxx-armbian/actions) 页面里选择 ***`Build armbian`*** ，根据 Armbian 官方支持的 OS 版本，可以选择 Ubuntu 系列：`jammy`，或者 Debian 系列：`bullseye` 等。点击 ***`Run workflow`*** 按钮即可编译。更多参数的设置方法可以在 [Armbian 官方文档](https://docs.armbian.com/Developer-Guide_Build-Options/) 里查阅。
+2. Full compile: On the [Actions](https://github.com/ophub/amlogic-s9xxx-armbian/actions) page, select ***`Build armbian`***. According to the OS versions supported by Armbian official, you can choose the Ubuntu series: `jammy`, or the Debian series: `bullseye` etc. Click the ***`Run workflow`*** button to compile. More parameter setting methods can be found in the [Armbian official documentation](https://docs.armbian.com/Developer-Guide_Build-Options/).
 
-3. 再次编译：如果 [Releases](https://github.com/ophub/amlogic-s9xxx-armbian/releases) 中有已经编译好的 `Armbian_.*-trunk_.*.img.gz` 文件，你只是想再次制作其他不同 board 的盒子，可以跳过 Armbian 源文件的编译，直接进行二次制作。在 [Actions](https://github.com/ophub/amlogic-s9xxx-armbian/actions) 页面中选择  ***`Use Releases file to build armbian`*** ，点击 ***`Run workflow`*** 按钮即可二次编译。
+3. Recompile: If there are already compiled `Armbian_.*-trunk_.*.img.gz` files in [Releases](https://github.com/ophub/amlogic-s9xxx-armbian/releases), and you just want to make another box of different boards, you can skip the compilation of Armbian source files and proceed with the second production directly. On the [Actions](https://github.com/ophub/amlogic-s9xxx-armbian/actions) page, select ***`Use Releases file to build armbian`***, and click the ***`Run workflow`*** button to compile again.
 
-4. 使用其他 Armbian 系统，如 Armbian 官方系统下载网站 [armbian.tnahosting.net](https://armbian.tnahosting.net/dl/) 提供的 [odroidn2](https://armbian.tnahosting.net/dl/odroidn2/archive/) 系统，仅在流程控制文件 [rebuild-armbian.yml](.github/workflows/rebuild-armbian.yml) 中引入本仓库的脚本进行 Armbian 重构，即可适配其他盒子的使用。在 [Actions](https://github.com/ophub/amlogic-s9xxx-armbian/actions) 页面里选择 ***`Rebuild armbian`*** ，输入 Armbian 的网络下载地址如 `https://dl.armbian.com/*/Armbian_*.img.xz` ，或者在流程控制文件 [rebuild-armbian.yml](.github/workflows/rebuild-armbian.yml) 中通过 `armbian_path` 参数设定重构文件的加载路径。代码如下:
+4. Use other Armbian systems, such as the [odroidn2](https://armbian.tnahosting.net/dl/odroidn2/archive/) system provided by the Armbian official system download website [armbian.tnahosting.net](https://armbian.tnahosting.net/dl/), and only introduce the script of this repository in the process control file [rebuild-armbian.yml](.github/workflows/rebuild-armbian.yml) to restructure Armbian, which can be adapted to the use of other boxes. On the [Actions](https://github.com/ophub/amlogic-s9xxx-armbian/actions) page, select ***`Rebuild armbian`***, input the network download address of Armbian like `https://dl.armbian.com/*/Armbian_*.img.xz`, or set the loading path of the restructuring file in the process control file [rebuild-armbian.yml](.github/workflows/rebuild-armbian.yml) through the `armbian_path` parameter. The code is as follows:
 
 ```yaml
 - name: Rebuild Armbian
@@ -238,43 +231,43 @@ sudo apt-get install -y $(cat compile-kernel/tools/script/ubuntu2204-build-armbi
     armbian_kernel: 6.1.y_5.15.y
 ```
 
-- ### GitHub Actions 输入参数说明
+- ### GitHub Actions Input Parameter Description
 
-相关参数与`本地打包命令`相对应，请参考上面的说明。
+The related parameters correspond to the `local packaging command`, please refer to the above description.
 
-| 参数              | 默认值             | 说明                                             |
-|------------------|-------------------|--------------------------------------------------|
-| armbian_path     | 无                | 设置原版 Armbian 文件的路径，支持使用当前工作流中的文件路径如 `build/output/images/*.img` ，也支持使用网络下载地址如： `https://dl.armbian.com/*/Armbian_*.img.xz` |
-| armbian_board    | all               | 设置打包盒子的 `board` ，功能参考 `-b`                 |
-| kernel_repo      | ophub/kernel      | 指定 github.com 内核仓库的 `<owner>/<repo>`，功能参考 `-r` |
-| kernel_usage     | stable            | 设置使用的内核的 `tags 后缀`。功能参考 `-u` |
-| armbian_kernel   | 6.1.y_5.15.y      | 设置内核 [版本](https://github.com/ophub/kernel/releases/tag/kernel_stable)，功能参考 `-k` |
-| auto_kernel      | true              | 设置是否自动采用同系列最新版本内核，功能参考 `-a`       |
-| armbian_fstype   | ext4              | 设置系统 ROOTFS 分区的文件系统类型，功能参考 `-t`     |
-| armbian_size     | 512/2560          | 设置系统 BOOTFS 和 ROOTFS 分区的大小，功能参考 `-s`  |
-| builder_name     | 无                | 设置 Armbian 系统构建者签名，功能参考 `-n`           |
+| Parameter              | Default                  | Description                                             |
+|------------------------|--------------------------|---------------------------------------------------------|
+| armbian_path           | None                     | Set the path of the original Armbian file, support the file path in the current workflow such as `build/output/images/*.img`, and also support the network download address such as: `https://dl.armbian.com/*/Armbian_*.img.xz` |
+| armbian_board          | all                      | Set the `board` of the package box, refer to `-b`                 |
+| kernel_repo            | ophub/kernel             | Specify `<owner>/<repo>` of the github.com kernel repository, refer to `-r` |
+| kernel_usage           | stable                   | Set the `tags suffix` of the used kernel. Refer to `-u` |
+| armbian_kernel         | 6.1.y_5.15.y             | Set the [version](https://github.com/ophub/kernel/releases/tag/kernel_stable) of the kernel, refer to `-k` |
+| auto_kernel            | true                     | Set whether to automatically adopt the latest version of the same series kernel, refer to `-a`       |
+| armbian_fstype         | ext4                     | Set the file system type of the system's ROOTFS partition, refer to `-t`     |
+| armbian_size           | 512/2560                 | Set the size of the system BOOTFS and ROOTFS partitions, function reference `-s`  |
+| builder_name           | None                     | Set the Armbian system builder signature, refer to `-n`           |
 
-- ### GitHub Actions 输出变量说明
+- ### GitHub Actions Output Variable Description
 
-上传到 `Releases` 需要给仓库设置 `Workflow 读写权限`，详见[使用说明](documents/README.cn.md#2-设置隐私变量-github_token)。
+To upload to `Releases`, you need to set `Workflow read/write permissions` for repository. For details, see the [usage instructions](documents/README.md#2-set-up-private-variable-github_token).
 
-| 参数                                 | 默认值         | 说明                       |
-|-------------------------------------|---------------|----------------------------|
-| ${{ env.PACKAGED_OUTPUTPATH }}      | out           | Armbian 系统文件输出路径      |
-| ${{ env.PACKAGED_OUTPUTDATE }}      | 04.13.1058    | 打包日期（月.日.时分）         |
-| ${{ env.PACKAGED_STATUS }}          | success       | 打包状态：success / failure  |
+| Parameter                        | Default       | Description                           |
+|----------------------------------|---------------|---------------------------------------|
+| ${{ env.PACKAGED_OUTPUTPATH }}   | out           | Armbian system files output path      |
+| ${{ env.PACKAGED_OUTPUTDATE }}   | 04.13.1058    | Packaging date (month.day.hourminute) |
+| ${{ env.PACKAGED_STATUS }}       | success       | Packaging status: success / failure   |
 
-## Armbian 系统默认信息
+## Default Information for Armbian System
 
-| 名称 | 值 |
+| Name | Value |
 | ---- | ---- |
-| 默认 IP | 从路由器获取 IP |
-| 默认账号 | root |
-| 默认密码 | 1234 |
+| Default IP | Obtain IP from router |
+| Default account | root |
+| Default password | 1234 |
 
-## 使用 GitHub Actions 编译内核
+## Compiling Kernel using GitHub Actions
 
-内核的编译方法详见 [compile-kernel](compile-kernel/README.cn.md)
+For the method of compiling the kernel, refer to [compile-kernel](compile-kernel)
 
 ```yaml
 - name: Compile the kernel
@@ -286,22 +279,22 @@ sudo apt-get install -y $(cat compile-kernel/tools/script/ubuntu2204-build-armbi
     kernel_sign: -yourname
 ```
 
-## Armbian 贡献者
+## Armbian Contributors
 
-首先感谢 [150balbes](https://github.com/150balbes) 为在 Amlogic 电视盒子中使用 Armbian 所做出的杰出贡献和奠定的良好基础。这里编译的 [Armbian](https://github.com/armbian/build) 系统直接使用了官方当前的最新源码进行实时编译。程序的开发思路来自 [ebkso](https://www.kflyo.com/howto-compile-armbian-for-n1-box) 等作者的教程。感谢各位的奉献和分享，让我们可以在更多盒子里使用 Armbian 系统。
+First of all, thanks to [150balbes](https://github.com/150balbes) for the outstanding contributions and the solid foundation laid for using Armbian in Amlogic TV boxes. The [Armbian](https://github.com/armbian/build) system compiled here directly uses the latest source code from the official in real-time. The development ideas of the program come from tutorials from authors such as [ebkso](https://www.kflyo.com/howto-compile-armbian-for-n1-box). Thank you all for your dedication and sharing, allowing us to use the Armbian system in more boxes.
 
-本系统所使用的 [u-boot](https://github.com/ophub/u-boot), [kernel](https://github.com/ophub/kernel) 等资源主要从 [unifreq/openwrt_packit](https://github.com/unifreq/openwrt_packit) 的项目中复制而来，部分文件由用户在 [amlogic-s9xxx-openwrt](https://github.com/ophub/amlogic-s9xxx-openwrt) / [amlogic-s9xxx-armbian](https://github.com/ophub/amlogic-s9xxx-armbian) / [luci-app-amlogic](https://github.com/ophub/luci-app-amlogic) / [kernel](https://github.com/ophub/kernel) / [u-boot](https://github.com/ophub/u-boot) 等项目的 [Pull](https://github.com/ophub/amlogic-s9xxx-armbian/pulls) 和 [Issues](https://github.com/ophub/amlogic-s9xxx-armbian/issues) 中提供分享。为感谢这些开拓者和分享者，从现在开始（本源代码库创建于`2021-09-19`），我统一在 [CONTRIBUTORS.md](https://github.com/ophub/amlogic-s9xxx-armbian/blob/main/CONTRIBUTORS.md) 中进行了记录。再次感谢大家为盒子赋予了新的生命和意义。
+The [u-boot](https://github.com/ophub/u-boot), [kernel](https://github.com/ophub/kernel) and other resources used in this system are mainly copied from the [unifreq/openwrt_packit](https://github.com/unifreq/openwrt_packit) project, and some files are provided by users in [Pull](https://github.com/ophub/amlogic-s9xxx-armbian/pulls) and [Issues](https://github.com/ophub/amlogic-s9xxx-armbian/issues) of projects such as [amlogic-s9xxx-openwrt](https://github.com/ophub/amlogic-s9xxx-openwrt), [amlogic-s9xxx-armbian](https://github.com/ophub/amlogic-s9xxx-armbian), [luci-app-amlogic](https://github.com/ophub/luci-app-amlogic), [u-boot](https://github.com/ophub/u-boot) and [kernel](https://github.com/ophub/kernel). To thank these pioneers and sharers, from now on (this source code repository was created on `2021-09-19`), I have recorded it uniformly in [CONTRIBUTORS.md](https://github.com/ophub/amlogic-s9xxx-armbian/blob/main/CONTRIBUTORS.md). Thanks again to everyone for giving the box a new life and meaning.
 
-## 其他发行版
+## Other Distributions
 
-- [amlogic-s9xxx-openwrt](https://github.com/ophub/amlogic-s9xxx-openwrt) 项目提供了在盒子中使用的 `OpenWrt` 系统，在支持 Armbian 的相关设备中同样适用。
-- [unifreq](https://github.com/unifreq/openwrt_packit) 为晶晨、瑞芯微和全志等更多盒子制作了 `OpenWrt` 系统，属于盒子圈的标杆，推荐使用。
-- [Scirese](https://github.com/Scirese/alarm) 在安卓电视盒子里测试了 `Arch Linux ARM` / `Manjaro` 系统的制作、安装和使用，具体详见他仓库中的相关说明。
-- [7Ji](https://7ji.github.io/) 在他的博客中发表了一些在 Amlogic 平台上的逆向工程和开发的文章，比如以 ArchLinux 的方式安装 ArchLinux ARM 系统，对 Amlogic 平台的启动机制的介绍等。在他的 [ampart](https://github.com/7Ji/ampart) 项目中，提供了一款分区工具，能够读取并编辑 Amlogic 的 eMMC 分区表和 DTB 内分区，可以 100% 利用 eMMC 空间。在 [amlogic-s9xxx-archlinuxarm](https://github.com/7Ji/amlogic-s9xxx-archlinuxarm) 项目中提供了 `Arch Linux ARM` 系统的制作和使用方法。在 [YAopenvfD](https://github.com/7Ji/YAopenvfD) 项目中提供了另一个 openvfd 守护进程。
-- [13584452567](https://github.com/13584452567) 是本仓库 `Rockchip` 系列设备的开拓者，因为他的分享而拓展了对 [EAIDK-610](https://github.com/ophub/amlogic-s9xxx-armbian/pull/991), [King3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1080), [TN3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1094), [Kylin3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1132), [ZCube1-Max](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1247), [tvi3315a](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1687), [xiaobao](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1698) 等众多 `Rockchip` 设备的支持，他也是 [TQC-A01](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1638) 等 `Allwinner` 设备 [专用内核](https://github.com/13584452567/linux-6.6.y) 的维护者。他在 [论坛](https://github.com/ophub/amlogic-s9xxx-armbian/discussions/1634) 和 [问答区](https://github.com/ophub/amlogic-s9xxx-armbian/issues) 里提供了大量的技术支持和解决方案，为盒子圈的发展做出了巨大的贡献。
+- The [amlogic-s9xxx-openwrt](https://github.com/ophub/amlogic-s9xxx-openwrt) project provides the `OpenWrt` system used in the box, which is also applicable to devices that support Armbian.
+- [unifreq](https://github.com/unifreq/openwrt_packit) has made `OpenWrt` system for more boxes such as Amlogic, Rockchip, and Allwinner, which is a benchmark in the box circle and recommended to use.
+- [Scirese](https://github.com/Scirese/alarm) tested the production, installation, and use of `Arch Linux ARM` / `Manjaro` system in Android TV boxes, for details refer to the relevant instructions in his repository.
+- [7Ji](https://7ji.github.io/) has published some articles on reverse engineering and development on the Amlogic platform in his blog, such as installing the ArchLinux ARM system in the way of ArchLinux, an introduction to the boot mechanism of the Amlogic platform, etc. In his [ampart](https://github.com/7Ji/ampart) project, a partition tool is provided that can read and edit the Amlogic eMMC partition table and DTB internal partition, and can utilize 100% of eMMC space. The [amlogic-s9xxx-archlinuxarm](https://github.com/7Ji/amlogic-s9xxx-archlinuxarm) project provides the production and use method of `Arch Linux ARM` system. In the [YAopenvfD](https://github.com/7Ji/YAopenvfD) project, another openvfd daemon is provided.
+- [13584452567](https://github.com/13584452567) is the pioneer for the `Rockchip` series of devices in this repository, having expanded support for numerous `Rockchip` devices like [EAIDK-610](https://github.com/ophub/amlogic-s9xxx-armbian/pull/991), [King3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1080), [TN3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1094), [Kylin3399](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1132), [ZCube1-Max](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1247), [tvi3315a](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1687), [xiaobao](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1698) and more, thanks to his sharing. Additionally, he remains the maintainer of specialized [kernels](https://github.com/13584452567/linux-6.6.y) for `Allwinner` devices like [TQC-A01](https://github.com/ophub/amlogic-s9xxx-armbian/pull/1638). Having provided a wealth of tech support and solutions within [Discussions](https://github.com/ophub/amlogic-s9xxx-armbian/discussions/1634) and [Issues](https://github.com/ophub/amlogic-s9xxx-armbian/issues) sections, he's made significant contributions to the development of the box circle.
 
 
-## 链接
+## Links
 
 - [armbian](https://github.com/armbian/build)
 - [unifreq](https://github.com/unifreq)
