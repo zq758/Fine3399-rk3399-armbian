@@ -463,6 +463,49 @@ armbian-software
 
 Using the `armbian-software -u` command, you can update the local software center list. Based on user feedback in [Issue](https://github.com/ophub/amlogic-s9xxx-armbian/issues), we gradually integrate commonly used [software](../armbian-files/common-files/usr/share/ophub/armbian-software/software-list.conf) to implement one-click installation/update/uninstallation and other quick operations. This includes `docker images`, `desktop software`, `application services`, etc. See more [instructions](armbian_software.md).
 
+Use the `armbian-apt` command to select the appropriate software source for your country or region, which can improve software download speeds. For example, select the `mirrors.tuna.tsinghua.edu.cn` source in China:
+
+
+```shell
+armbian-apt
+
+[ STEPS ] Welcome to the Armbian source change script.
+[ INFO ] Please select a [ bookworm ] mirror site.
+  ┌──────┬───────────────────┬────────────────────────────────┐
+  │  ID  │  Country/Region   │  Mirror Site                   │
+  ├──────┼───────────────────┼────────────────────────────────┤
+  │   0  │  -                │  Restore default source        │
+  │   1  │  China            │  mirrors.tuna.tsinghua.edu.cn  │
+  │   2  │  China            │  mirrors.bfsu.edu.cn           │
+  │   3  │  China            │  mirrors.aliyun.com            │
+  │   4  │  Hongkong, China  │  mirrors.xtom.hk               │
+  │   5  │  Taiwan, China    │  opensource.nchc.org.tw        │
+  ├──────┼───────────────────┼────────────────────────────────┤
+  │   6  │  United States    │  mirrors.ocf.berkeley.edu      │
+  │   7  │  United States    │  mirrors.xtom.com              │
+  │   8  │  United States    │  mirrors.mit.edu               │
+  │   9  │  Canada           │  mirror.csclub.uwaterloo.ca    │
+  │  10  │  Canada           │  muug.ca/mirror                │
+  ├──────┼───────────────────┼────────────────────────────────┤
+  │  11  │  Finland          │  mirror.kumi.systems           │
+  │  12  │  Netherlands      │  mirrors.xtom.nl               │
+  │  13  │  Germany          │  mirrors.xtom.de               │
+  │  14  │  Russia           │  mirror.yandex.ru              │
+  │  15  │  India            │  in.mirror.coganng.com         │
+  ├──────┼───────────────────┼────────────────────────────────┤
+  │  16  │  Estonia          │  mirrors.xtom.ee               │
+  │  17  │  Australia        │  mirrors.xtom.au               │
+  │  18  │  South Korea      │  mirror.yuki.net.uk            │
+  │  19  │  Singapore        │  mirror.sg.gs                  │
+  │  20  │  Japan            │  mirrors.xtom.jp               │
+  └──────┴───────────────────┴────────────────────────────────┘
+[ OPTIONS ] Please Input ID: 1
+[ INFO ] Your selected source ID is: [ 1 ]
+[ STEPS ] Start to change the source of the system: [ mirrors.tuna.tsinghua.edu.cn ]
+[ INFO ] The system release is: [ bookworm ]
+[ SUCCESS ] Change the source of the system successfully.
+```
+
 ## 12. Frequently Asked Questions
 
 Here's a compilation of some common issues you may encounter while using Armbian.
