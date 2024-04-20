@@ -40,6 +40,7 @@ on:
           - eaidk-610
           - emb3531
           - fine3399
+          - fine3399-full
           - firefly-rk3399
           - jp-tvbox
           - h28k
@@ -178,9 +179,10 @@ on:
       kernel_repo:
         description: "Set the kernel repository."
         required: false
-        default: "ophub/kernel"
+        default: "QXY716/kernel"
         type: choice
         options:
+          - QXY716/kernel
           - ophub/kernel
       kernel_usage:
         description: "Set the tags of the stable kernel."
@@ -278,7 +280,7 @@ jobs:
           armbian_buildpath="build/output/images"
           [[ -d "${armbian_buildpath}" ]] || mkdir -p "${armbian_buildpath}"
           ln -sf /builder/build ${GITHUB_WORKSPACE}/build
-          ln -sf /builder/build /home/runner/work/_actions/ophub/amlogic-s9xxx-armbian/main/build
+          ln -sf /builder/build /home/runner/work/_actions/QXY716/Fine3399-rk3399-armbian/main/build
 
           latest_version="$(curl -s \
                               -H "Accept: application/vnd.github+json" \
@@ -305,7 +307,7 @@ jobs:
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       - name: Rebuild Armbian [ ${{ inputs.set_release }} ]
-        uses: ophub/amlogic-s9xxx-armbian@main
+        uses: QXY716/Fine3399-rk3399-armbian@main
         if: ${{ steps.down.outputs.status }} == 'success' && !cancelled()
         with:
           build_target: armbian
