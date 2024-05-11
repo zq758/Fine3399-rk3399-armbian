@@ -1,4 +1,4 @@
-# Fine3399 / 说明
+# Fine3399 R08 / 说明
 
 Fine3399资料：https://gitee.com/opengisbook/Fine3399-Official  
 莓底板/fine3399测试工程：https://gitee.com/xiayang0521/berrybaseboard-test  
@@ -9,14 +9,24 @@ cm9vdA大佬适配的DTS：https://github.com/cm9vdA/build-linux/blob/master/boo
 而使用该DTS编译出来的linux kernel dtb，系统能正常工作，包括双网口，HDMI，PCIE设备，蓝色led。  
 ophub大佬release出来的Fine3399镜像直接烧录，无法正常启动，原因还是uboot。  
 
-之后又尝试，将xiayang0521的早期armbain固件提取出来的uboot引导分区镜像(https://github.com/QXY716/u-boot/blob/main/u-boot/rockchip/fine3399/uboot-bozz-rk3399.bin )，缝合进ophub大佬的固件之后，均能正常启动，内核5.15,6.1,6.6都通过。  
+之后又尝试，将xiayang0521的早期armbian固件提取出来的uboot引导分区镜像(https://github.com/QXY716/u-boot/blob/main/u-boot/rockchip/fine3399/uboot-bozz-rk3399.bin )，缝合进ophub大佬的固件之后，均能正常启动，内核5.15,6.1,6.6都通过。  
 本人水平有限，根据固件缝合原理，整出了一个临时解决方法。修改了rebuild重构脚本，在Fine3399固件生成时将uboot-bozz-rk3399.bin写入，达到替换uboot的效果。  
 代码语句：sudo dd if="${bootloader_path}/uboot-bozz-rk3399.bin" of="${loop_new}" bs=1k skip=32 seek=32 conv=notrunc 2>/dev/null  
 
-Fine3399固件的DTS中已经开启了pcie2.0 x2通道，双网口，HDMI，led正常工作。  
+Fine3399固件的DTS中已经开启了pcie2.0 x2通道，双网口，HDMI，led正常工作，已满足大部分人的日常使用。  
+PWM、WIFI、蓝牙在DTS中默认关闭，并未开启。  
 
 2024.4.20: 添加R08支持  
 
+本人适配的基于flippy打包脚本构建的openwrt下载地址：  
+https://github.com/QXY716/flippy-openwrt-actions/releases  
+默认支持WIFI功能。  
+
+# Fine3399-full / 说明
+
+2024.5.11: 添加了Fine3399的AP6236固件，并且修改了rebuild脚本，经测试wifi和蓝牙已经能够正常使用，至此Armbian几近完美。  
+决定将机型命名为Fine3399-full，意为全功能版固件。  
+如无需无线蓝牙功能，只需下载非full普通版固件。  
 
 # Armbian
 
